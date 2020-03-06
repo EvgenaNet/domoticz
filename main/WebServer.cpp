@@ -43,6 +43,7 @@
 #include "../webserver/Base64.h"
 #include "../smtpclient/SMTPClient.h"
 #include "../json/json.h"
+#include "../main/json_helper.h"
 #include "Logger.h"
 #include "SQLHelper.h"
 #include "../push/BasePush.h"
@@ -525,6 +526,7 @@ namespace http {
 			RegisterCommandCode("downloadready", boost::bind(&CWebServer::Cmd_DownloadReady, this, _1, _2, _3));
 			RegisterCommandCode("update_application", boost::bind(&CWebServer::Cmd_UpdateApplication, this, _1, _2, _3));
 			RegisterCommandCode("deletedatapoint", boost::bind(&CWebServer::Cmd_DeleteDatePoint, this, _1, _2, _3));
+			RegisterCommandCode("customevent", boost::bind(&CWebServer::Cmd_CustomEvent, this, _1, _2, _3));
 
 			RegisterCommandCode("setactivetimerplan", boost::bind(&CWebServer::Cmd_SetActiveTimerPlan, this, _1, _2, _3));
 			RegisterCommandCode("addtimer", boost::bind(&CWebServer::Cmd_AddTimer, this, _1, _2, _3));
@@ -1247,6 +1249,7 @@ namespace http {
 				(htype == HTYPE_ANNATHERMOSTAT) ||
 				(htype == HTYPE_THERMOSMART) ||
 				(htype == HTYPE_Tado) ||
+				(htype == HTYPE_Tesla) ||
 				(htype == HTYPE_Netatmo)
 				)
 			{
@@ -1525,13 +1528,14 @@ namespace http {
 				}
 			}
 			else if (
-				(htype == HTYPE_RFXLAN) || (htype == HTYPE_P1SmartMeterLAN) ||
-				(htype == HTYPE_YouLess) || (htype == HTYPE_OpenThermGatewayTCP) || (htype == HTYPE_LimitlessLights) ||
-				(htype == HTYPE_SolarEdgeTCP) || (htype == HTYPE_WOL) || (htype == HTYPE_S0SmartMeterTCP) || (htype == HTYPE_ECODEVICES) || (htype == HTYPE_Mochad) ||
-				(htype == HTYPE_MySensorsTCP) || (htype == HTYPE_MySensorsMQTT) || (htype == HTYPE_MQTT) || (htype == HTYPE_TTN_MQTT) || (htype == HTYPE_FRITZBOX) || (htype == HTYPE_ETH8020) || (htype == HTYPE_Sterbox) ||
-				(htype == HTYPE_KMTronicTCP) || (htype == HTYPE_KMTronicUDP) || (htype == HTYPE_SOLARMAXTCP) || (htype == HTYPE_RelayNet) || (htype == HTYPE_SatelIntegra) || (htype == HTYPE_eHouseTCP) || (htype == HTYPE_RFLINKTCP) ||
-				(htype == HTYPE_Comm5TCP || (htype == HTYPE_Comm5SMTCP) || (htype == HTYPE_CurrentCostMeterLAN)) ||
-				(htype == HTYPE_NefitEastLAN) || (htype == HTYPE_DenkoviHTTPDevices) || (htype == HTYPE_DenkoviTCPDevices) || (htype == HTYPE_Ec3kMeterTCP) || (htype == HTYPE_MultiFun) || (htype == HTYPE_ZIBLUETCP) || (htype == HTYPE_OnkyoAVTCP)
+				(htype == HTYPE_RFXLAN) || (htype == HTYPE_P1SmartMeterLAN)
+				|| (htype == HTYPE_YouLess) || (htype == HTYPE_OpenThermGatewayTCP) || (htype == HTYPE_LimitlessLights)
+				|| (htype == HTYPE_SolarEdgeTCP) || (htype == HTYPE_WOL) || (htype == HTYPE_S0SmartMeterTCP) || (htype == HTYPE_ECODEVICES) || (htype == HTYPE_Mochad)
+				|| (htype == HTYPE_MySensorsTCP) || (htype == HTYPE_MySensorsMQTT) || (htype == HTYPE_MQTT) || (htype == HTYPE_TTN_MQTT) || (htype == HTYPE_FRITZBOX) || (htype == HTYPE_ETH8020) || (htype == HTYPE_Sterbox)
+				|| (htype == HTYPE_KMTronicTCP) || (htype == HTYPE_KMTronicUDP) || (htype == HTYPE_SOLARMAXTCP) || (htype == HTYPE_RelayNet) || (htype == HTYPE_SatelIntegra) || (htype == HTYPE_eHouseTCP) || (htype == HTYPE_RFLINKTCP)
+				|| (htype == HTYPE_Comm5TCP || (htype == HTYPE_Comm5SMTCP) || (htype == HTYPE_CurrentCostMeterLAN))
+				|| (htype == HTYPE_NefitEastLAN) || (htype == HTYPE_DenkoviHTTPDevices) || (htype == HTYPE_DenkoviTCPDevices) || (htype == HTYPE_Ec3kMeterTCP) || (htype == HTYPE_MultiFun) || (htype == HTYPE_ZIBLUETCP) || (htype == HTYPE_OnkyoAVTCP)
+				|| (htype == HTYPE_OctoPrint)
 				) {
 				//Lan
 				if (address.empty())
@@ -1640,6 +1644,7 @@ namespace http {
 				(htype == HTYPE_ANNATHERMOSTAT) ||
 				(htype == HTYPE_THERMOSMART) ||
 				(htype == HTYPE_Tado) ||
+				(htype == HTYPE_Tesla) ||
 				(htype == HTYPE_Netatmo)
 				)
 			{
@@ -3031,6 +3036,28 @@ namespace http {
 				root["status"] = "OK";
 				root["title"] = "Update Device";
 			}
+		}
+
+		void CWebServer::Cmd_CustomEvent(WebEmSession& session, const request& req, Json::Value& root)
+		{
+			if (session.rights < 1)
+			{
+				session.reply_status = reply::forbidden;
+				return; //only user or higher allowed
+			}
+			Json::Value eventInfo;
+			eventInfo["name"] = request::findValue(&req, "event");
+			eventInfo["data"] = request::findValue(&req, "data");
+
+			if (eventInfo["name"].empty())
+			{
+				return;
+			}
+
+			m_mainworker.m_notificationsystem.Notify(Notification::DZ_CUSTOM, Notification::STATUS_INFO, JSonToRawString(eventInfo));
+
+			root["status"] = "OK";
+			root["title"] = "Custom Event";
 		}
 
 		void CWebServer::Cmd_SetThermostatState(WebEmSession & session, const request& req, Json::Value &root)
@@ -11252,12 +11279,16 @@ namespace http {
 				session.reply_status = reply::forbidden;
 				return; //Only admin user allowed
 			}
+			time_t now = mytime(NULL);
+			Json::Value backupInfo;
+
+			backupInfo["type"] = "Web";
 #ifdef WIN32
-			std::string OutputFileName = szUserDataFolder + "backup.db";
+			backupInfo["location"] = szUserDataFolder + "backup.db";
 #else
-			std::string OutputFileName = "/tmp/backup.db";
+			backupInfo["location"] = "/tmp/backup.db";
 #endif
-			if (m_sql.BackupDatabase(OutputFileName))
+			if (m_sql.BackupDatabase(backupInfo["location"].asString()))
 			{
 				std::string szAttachmentName = "domoticz.db";
 				std::string szVar;
@@ -11270,7 +11301,9 @@ namespace http {
 						szAttachmentName = szVar + ".db";
 					}
 				}
-				reply::set_download_file(&rep, OutputFileName, szAttachmentName);
+				reply::set_download_file(&rep, backupInfo["location"].asString(), szAttachmentName);
+				backupInfo["duration"] = difftime(mytime(NULL),now);
+				m_mainworker.m_notificationsystem.Notify(Notification::DZ_BACKUP_DONE, Notification::STATUS_INFO, JSonToRawString(backupInfo));
 			}
 		}
 
@@ -15834,20 +15867,15 @@ namespace http {
 
 								root["result"][ii]["d"] = sd[4].substr(0, 16);
 
-								double counter_1 = atof(sd[5].c_str());
-								double counter_2 = atof(sd[6].c_str());
-								double counter_3 = atof(sd[7].c_str());
-								double counter_4 = atof(sd[8].c_str());
+								double counter_1 = std::stod(sd[5]);
+								double counter_2 = std::stod(sd[6]);
+								double counter_3 = std::stod(sd[7]);
+								double counter_4 = std::stod(sd[8]);
 
-								std::string szUsage1 = sd[0];
-								std::string szDeliv1 = sd[1];
-								std::string szUsage2 = sd[2];
-								std::string szDeliv2 = sd[3];
-
-								float fUsage_1 = static_cast<float>(atof(szUsage1.c_str()));
-								float fUsage_2 = static_cast<float>(atof(szUsage2.c_str()));
-								float fDeliv_1 = static_cast<float>(atof(szDeliv1.c_str()));
-								float fDeliv_2 = static_cast<float>(atof(szDeliv2.c_str()));
+								float fUsage_1 = std::stof(sd[0]);
+								float fUsage_2 = std::stof(sd[2]);
+								float fDeliv_1 = std::stof(sd[1]);
+								float fDeliv_2 = std::stof(sd[3]);
 
 								fDeliv_1 = (fDeliv_1 < 10) ? 0 : fDeliv_1;
 								fDeliv_2 = (fDeliv_2 < 10) ? 0 : fDeliv_2;
@@ -15925,15 +15953,10 @@ namespace http {
 
 								root["resultprev"][iPrev]["d"] = sd[4].substr(0, 16);
 
-								std::string szUsage1 = sd[0];
-								std::string szDeliv1 = sd[1];
-								std::string szUsage2 = sd[2];
-								std::string szDeliv2 = sd[3];
-
-								float fUsage_1 = static_cast<float>(atof(szUsage1.c_str()));
-								float fUsage_2 = static_cast<float>(atof(szUsage2.c_str()));
-								float fDeliv_1 = static_cast<float>(atof(szDeliv1.c_str()));
-								float fDeliv_2 = static_cast<float>(atof(szDeliv2.c_str()));
+								float fUsage_1 = std::stof(sd[0]);
+								float fUsage_2 = std::stof(sd[2]);
+								float fDeliv_1 = std::stof(sd[1]);
+								float fDeliv_2 = std::stof(sd[3]);
 
 								if ((fDeliv_1 != 0) || (fDeliv_2 != 0))
 									bHaveDeliverd = true;
@@ -16553,25 +16576,34 @@ namespace http {
 
 							root["result"][ii]["d"] = szDateEnd;
 
-							std::string szValue;
-
-							sprintf(szTmp, "%llu", total_real_usage_1);
-							szValue = szTmp;
-							sprintf(szTmp, "%.3f", atof(szValue.c_str()) / divider);
+							sprintf(szTmp, "%.3f", (float)(total_real_usage_1 / divider));
 							root["result"][ii]["v"] = szTmp;
-							sprintf(szTmp, "%llu", total_real_usage_2);
-							szValue = szTmp;
-							sprintf(szTmp, "%.3f", atof(szValue.c_str()) / divider);
+							sprintf(szTmp, "%.3f", (float)(total_real_usage_2 / divider));
 							root["result"][ii]["v2"] = szTmp;
 
-							sprintf(szTmp, "%llu", total_real_deliv_1);
-							szValue = szTmp;
-							sprintf(szTmp, "%.3f", atof(szValue.c_str()) / divider);
+							sprintf(szTmp, "%.3f", (float)(total_real_deliv_1 / divider));
 							root["result"][ii]["r1"] = szTmp;
-							sprintf(szTmp, "%llu", total_real_deliv_2);
-							szValue = szTmp;
-							sprintf(szTmp, "%.3f", atof(szValue.c_str()) / divider);
+							sprintf(szTmp, "%.3f", (float)(total_real_deliv_2 / divider));
 							root["result"][ii]["r2"] = szTmp;
+
+							sprintf(szTmp, "%.3f", (float)(total_min_usage_1 / divider));
+							root["result"][ii]["c1"] = szTmp;
+							sprintf(szTmp, "%.3f", (float)(total_min_usage_2 / divider));
+							root["result"][ii]["c3"] = szTmp;
+
+							if (total_max_deliv_2 != 0)
+							{
+								sprintf(szTmp, "%.3f", (float)(total_min_deliv_1 / divider));
+								root["result"][ii]["c2"] = szTmp;
+								sprintf(szTmp, "%.3f", (float)(total_min_deliv_2 / divider));
+								root["result"][ii]["c4"] = szTmp;
+							}
+							else
+							{
+								strcpy(szTmp, "0");
+								root["result"][ii]["c2"] = szTmp;
+								root["result"][ii]["c4"] = szTmp;
+							}
 
 							ii++;
 						}

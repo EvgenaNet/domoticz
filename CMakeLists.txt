@@ -126,6 +126,28 @@ ELSE(USE_BUILTIN_SQLITE)
   ENDIF(SQLite_FOUND)
 ENDIF(USE_BUILTIN_SQLITE)
 
+option(USE_BUILTIN_JSONCPP "Use builtin JSonCPP" YES)
+IF(USE_BUILTIN_JSONCPP)
+  MESSAGE(STATUS "Using builtin JSonCPP")
+  set (domoticz_jsoncpp_SRCS
+       json/json_reader.cpp
+       json/json_value.cpp
+       json/json_writer.cpp
+  )
+ELSE(USE_BUILTIN_JSCONCPP)
+  MESSAGE(STATUS "Using external JSonCPP")
+  find_package(PkgConfig)
+  pkg_check_modules(JSONCPP jsoncpp)
+  IF(JSONCPP_FOUND)
+    INCLUDE_DIRECTORIES(${JSONCPP_INCLUDE_DIRS})
+    add_definitions(-DWITH_EXTERNAL_JSONCPP)
+    link_directories(${JSONCPP_LIBRARY_DIRS})
+    MESSAGE(STATUS "JSonCPP found at ${JSONCPP_INCLUDE_DIRS} and ${JSONCPP_LIBRARY_DIRS}")
+  ELSE(JSCONCPP_FOUND)
+    MESSAGE(FATAL_ERROR "JSonCPP not found but USE_BUILTIN_JSONCPP=NO")
+  ENDIF(JSONCPP_FOUND)
+ENDIF(USE_BUILTIN_JSONCPP)
+
 option(USE_PYTHON "Use Python for Plugins and Event-Scripts" YES)
 IF(USE_PYTHON)
   find_package(PythonInterp 3.4)
@@ -322,8 +344,11 @@ main/localtime_r.cpp
 main/Logger.cpp
 main/LuaCommon.cpp
 main/LuaHandler.cpp
+main/LuaTable.cpp
 main/mainworker.cpp
 main/mosquitto_helper.cpp
+main/NotificationObserver.cpp
+main/NotificationSystem.cpp
 main/RFXNames.cpp
 main/Scheduler.cpp
 main/SignalHandler.cpp
@@ -383,6 +408,8 @@ hardware/EnOceanESP2.cpp
 hardware/EnOceanESP3.cpp
 hardware/EnphaseAPI.cpp
 hardware/Ec3kMeterTCP.cpp
+hardware/eVehicles/TeslaApi.cpp
+hardware/eVehicles/eVehicle.cpp
 hardware/EvohomeBase.cpp
 hardware/EvohomeRadio.cpp
 hardware/EvohomeScript.cpp
@@ -422,6 +449,7 @@ hardware/Nest.cpp
 hardware/NestOAuthAPI.cpp
 hardware/Netatmo.cpp
 hardware/HttpPoller.cpp
+hardware/OctoPrintMQTT.cpp
 hardware/OnkyoAVTCP.cpp
 hardware/OpenWeatherMap.cpp
 hardware/OpenWebNetTCP.cpp
@@ -526,9 +554,6 @@ webserver/request_parser.cpp
 webserver/server.cpp
 webserver/Websockets.cpp
 webserver/WebsocketHandler.cpp
-json/json_reader.cpp
-json/json_value.cpp
-json/json_writer.cpp
 tinyxpath/action_store.cpp
 tinyxpath/htmlutil.cpp
 tinyxpath/lex_util.cpp
@@ -546,7 +571,7 @@ tinyxpath/xpath_stack.cpp
 tinyxpath/xpath_static.cpp
 tinyxpath/xpath_syntax.cpp
 )
-add_executable(domoticz ${domoticz_SRCS})
+add_executable(domoticz ${domoticz_SRCS} ${domoticz_jsoncpp_SRCS})
 
 # explicitly say that the executable depends on the revisiontag
 add_dependencies(domoticz revisiontag)
@@ -736,7 +761,7 @@ else()
   message(STATUS "Not found telldus-core (telldus-core.h), not adding tellstick support")
 endif (TELLDUSCORE_INCLUDE)
 
-target_link_libraries(domoticz ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${MINIZIP_LIBRARIES} ${CURL_LIBRARIES} pthread ${MQTT_LIBRARIES} ${LUA_LIBRARIES} ${SQLite_LIBRARIES} ${CMAKE_DL_LIBS} ${TELLDUS_LIBRARIES})
+target_link_libraries(domoticz ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${MINIZIP_LIBRARIES} ${CURL_LIBRARIES} pthread ${MQTT_LIBRARIES} ${LUA_LIBRARIES} ${SQLite_LIBRARIES} ${CMAKE_DL_LIBS} ${TELLDUS_LIBRARIES} ${JSONCPP_LIBRARIES})
 
 IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_libraries(domoticz -lresolv)

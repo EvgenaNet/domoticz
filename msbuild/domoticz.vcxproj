@@ -483,6 +483,9 @@
     <ClInclude Include="..\hardware\EnOceanESP3.h" />
     <ClInclude Include="..\hardware\EnphaseAPI.h" />
     <ClInclude Include="..\hardware\ETH8020.h" />
+    <ClInclude Include="..\hardware\eVehicles\eVehicle.h" />
+    <ClInclude Include="..\hardware\eVehicles\TeslaApi.h" />
+    <ClInclude Include="..\hardware\eVehicles\VehicleApi.h" />
     <ClInclude Include="..\hardware\EvohomeBase.h" />
     <ClInclude Include="..\hardware\EvohomeRadio.h" />
     <ClInclude Include="..\hardware\EvohomeScript.h" />
@@ -496,6 +499,7 @@
     <ClInclude Include="..\hardware\HardwareCereal.h" />
     <ClInclude Include="..\hardware\Honeywell.h" />
     <ClInclude Include="..\hardware\NestOAuthAPI.h" />
+    <ClInclude Include="..\hardware\OctoPrintMQTT.h" />
     <ClInclude Include="..\hardware\Rtl433.h" />
     <ClInclude Include="..\hardware\SysfsGpio.h" />
     <ClInclude Include="..\hardware\HarmonyHub.h" />
@@ -615,9 +619,12 @@
     <ClInclude Include="..\main\Logger.h" />
     <ClInclude Include="..\main\LuaCommon.h" />
     <ClInclude Include="..\main\LuaHandler.h" />
+    <ClInclude Include="..\main\LuaTable.h" />
     <ClInclude Include="..\main\mainstructs.h" />
     <ClInclude Include="..\main\mosquitto_helper.h" />
     <ClInclude Include="..\main\Noncopyable.h" />
+    <ClInclude Include="..\main\NotificationObserver.h" />
+    <ClInclude Include="..\main\NotificationSystem.h" />
     <ClInclude Include="..\main\StoppableTask.h" />
     <ClInclude Include="..\main\TrendCalculator.h" />
     <ClInclude Include="..\main\unzip_iterator.h" />
@@ -783,6 +790,8 @@
     <ClCompile Include="..\hardware\EnOceanESP3.cpp" />
     <ClCompile Include="..\hardware\EnphaseAPI.cpp" />
     <ClCompile Include="..\hardware\ETH8020.cpp" />
+    <ClCompile Include="..\hardware\eVehicles\eVehicle.cpp" />
+    <ClCompile Include="..\hardware\eVehicles\TeslaApi.cpp" />
     <ClCompile Include="..\hardware\EvohomeBase.cpp" />
     <ClCompile Include="..\hardware\EvohomeRadio.cpp" />
     <ClCompile Include="..\hardware\EvohomeScript.cpp" />
@@ -795,6 +804,7 @@
     <ClCompile Include="..\hardware\GpioPin.cpp" />
     <ClCompile Include="..\hardware\Honeywell.cpp" />
     <ClCompile Include="..\hardware\NestOAuthAPI.cpp" />
+    <ClCompile Include="..\hardware\OctoPrintMQTT.cpp" />
     <ClCompile Include="..\hardware\Rtl433.cpp" />
     <ClCompile Include="..\hardware\SysfsGpio.cpp" />
     <ClCompile Include="..\hardware\HarmonyHub.cpp" />
@@ -910,7 +920,10 @@
     <ClCompile Include="..\main\Logger.cpp" />
     <ClCompile Include="..\main\LuaCommon.cpp" />
     <ClCompile Include="..\main\LuaHandler.cpp" />
+    <ClCompile Include="..\main\LuaTable.cpp" />
     <ClCompile Include="..\main\mosquitto_helper.cpp" />
+    <ClCompile Include="..\main\NotificationObserver.cpp" />
+    <ClCompile Include="..\main\NotificationSystem.cpp" />
     <ClCompile Include="..\main\Scheduler.cpp" />
     <ClCompile Include="..\main\SignalHandler.cpp" />
     <ClCompile Include="..\main\SQLHelper.cpp" />

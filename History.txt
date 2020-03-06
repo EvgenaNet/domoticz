@@ -1,21 +1,25 @@
 Version 4.1xxxx (xxx 2020) see https://www.domoticz.com/wiki/Domoticz_versions_-_Commits for details
+- Implemented: BuienRadar
 - Implemented: DarkSky CloudCover sensor
+- Implemented: eVehicles framework, with Tesla as first hardware module
 - Implemented: EventSystem, option in Settings to enable/disable URL call logging containing full URL path
 - Implemented: Floorplan, add support for SVG
 - Implemented: GUI, OpenZWave added Refresh Node Information button, styling
+- Implemented: GUI: real-time updates on Devices tab (Websockets)
+- Implemented: GUI: Sun/Rain icons
 - Implemented: Hue, Add Support for Geo fence sensor, dimmer switches and Hue LCG002 GU10 spot
-- Implemented: Per User favorites (with viewer rights)
-- Implemented: RTL433, added Power (Watt) type
-- Implemented: RTL433, added rainfall_mm type
+- Implemented: Octoprint hardware module 
 - Implemented: OZW, JSON call to retrieve current battery levels for all nodes
 - Implemented: OZW, Support for Loudness sensor
 - Implemented: OZW, Support for Particulate_Mater_2_5 (Dust) sensor (ug/m3)
 - Implemented: OZW, Support for Smoke density (%)
 - Implemented: OZW, Support for Volatile_Organic_Compound (CO2, ppm)
 - Implemented: OZW, Support for Frequency sensor
-- Implemented: BuienRadar
-- Implemented: Sun/Rain icons
-- Implemented: Add support for Belgian and Luxembourgian P1 meters
+- Implemented: Per User favorites (with viewer rights)
+- Implemented: RTL433, added Power (Watt) type
+- Implemented: RTL433, added rainfall_mm type
+- Implemented: Xiaomi, added Wireless Single Wall Switch
+- Implemented: DisableLogAutoUpdate and AddDBLogEntry device options for counters, to be enabled from plugins
 - Fixed: API, allow variabletype to be entered as text or integer in adduservariable and updateuservariable (#3320)
 - Fixed: GUI, Choosing Icon for ARC type switches
 - Fixed: GUI, Dashboard icon incremental counter (energy generated) not correct (#3231)
@@ -29,14 +33,16 @@ Version 4.1xxxx (xxx 2020) see https://www.domoticz.com/wiki/Domoticz_versions_-
 - Fixed: Blockly, handling incorrect time field
 - Fixed: Youless, possible buffer overflow (#3261)
 - Fixed: Evohome Web for updated library
-- Fixed: Telegram notification when odd number of underscores in text
 - Fixed: PhilipsHue
-- Updated: Translations
-- Updated: Update domoticz script now running directly in background
+- Fixed: Telegram notification when odd number of underscores in text
+- Updated: domoticz script now running directly in background
+- Updated: dzVents version 3.0.1 ( https://www.domoticz.com/wiki/DzVents:_next_generation_LUA_scripting#History )
+- Updated: Lua 5.3
 - Updated: Mosquitto 1.68
 - Updated: OpenZWave version 1.6
-- Updated: Lua version 5.3
-- Updated: dzVents version 2.5.7 ( https://www.domoticz.com/wiki/DzVents:_next_generation_LUA_scripting#History )
+- Updated: P1: Add support for Belgian and Luxembourgian meters
+- Updated: SQLite 3.31.1
+- Updated: Translations
 
 Version 4.10717 (May 9th 2019)
 - Fixed: dzVents, Allowing no error message for HTTP calls (#3191)
